@@ -2,8 +2,10 @@ package com.pojo;
 
 import java.util.Date;
 
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
 import javax.persistence.ManyToOne;
 
 
@@ -35,6 +37,7 @@ public class Trade {
 	
 	
 	@ManyToOne
+
 	private Customer customer;
 	//int customerId=customer.getCustomerId();
 
@@ -138,6 +141,34 @@ public class Trade {
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
+	
+
+	@Override
+	public String toString() {
+		return "Trade [tradeId=" + tradeId + ", tradeExecutionTime=" + tradeExecutionTime + ", brokerName=" + brokerName
+				+ ", securityId=" + securityId + ", security=" + security + ", securityName=" + securityName
+				+ ", tradeType=" + tradeType + ", marketPrice=" + marketPrice + ", price=" + price + ", isChecked="
+				+ isChecked + ", quantity=" + quantity + ", customer=" + customer + "]";
+	}
+
+	public Trade(int tradeId, Date tradeExecutionTime, String brokerName, int securityId, int security,
+			String securityName, boolean tradeType, int marketPrice, int price, boolean isChecked, int quantity,
+			Customer customer) {
+		super();
+		this.tradeId = tradeId;
+		this.tradeExecutionTime = tradeExecutionTime;
+		this.brokerName = brokerName;
+		this.securityId = securityId;
+		this.security = security;
+		this.securityName = securityName;
+		this.tradeType = tradeType;
+		this.marketPrice = marketPrice;
+		this.price = price;
+		this.isChecked = isChecked;
+		this.quantity = quantity;
+		this.customer = customer;
+	}
+
 	
 	
 	
