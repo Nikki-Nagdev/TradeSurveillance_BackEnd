@@ -6,6 +6,10 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 
 @Entity(name="trade")
@@ -14,6 +18,9 @@ public class Trade {
 
 	@Id
 	private int tradeId; // for the trade table
+	 
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Kolkata")
+	    
 	private Date tradeExecutionTime; // date to be filled
 	
 	private String brokerName;
