@@ -7,15 +7,15 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 
-@Entity(name = "marketlist")
+//@Entity(name = "marketlist")
 public class MarketList {
 
-	@Id
+	//@Id
 	private int securityId;
 	
 
 
-	@Column
+	//@Column
 
 	private int security;
 	private String securityName;

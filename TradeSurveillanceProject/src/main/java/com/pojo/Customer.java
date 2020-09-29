@@ -3,9 +3,9 @@ package com.pojo;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-@Entity(name = "customers")
+//@Entity(name = "customers")
 public class Customer {
-	@Id
+	//@Id
 
 	public int customerId;
 	

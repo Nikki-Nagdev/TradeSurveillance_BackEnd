@@ -2,6 +2,8 @@ package com.controllers;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.pojo.Trade;
 import com.repository.TradeRepository;
 
@@ -18,13 +19,16 @@ import com.repository.TradeRepository;
 public class TradeController {
 	@Autowired
 	TradeRepository dao;
+	
+	private static final Logger logger = LoggerFactory.getLogger(TradeController.class);
 
 	@PostMapping("/trades/add")
 	public ResponseEntity<Trade> saveTrade(@RequestBody Trade trade) {
 
 		Trade added = dao.save(trade);
 		
-		System.out.println(trade);
+		logger.info("trade added :" + trade);
+		// System.out.println(trade);
 		ResponseEntity<Trade> response = new ResponseEntity<Trade>(added, HttpStatus.CREATED);
 
 		return response;
@@ -38,7 +42,5 @@ public class TradeController {
 
 		return response;
 	}
-	
-	
 
 }

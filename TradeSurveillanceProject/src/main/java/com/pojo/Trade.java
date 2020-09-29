@@ -6,7 +6,6 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import javax.persistence.ManyToOne;
 
 
 @Entity(name="trade")
@@ -33,12 +32,12 @@ public class Trade {
 	
 	private int quantity;
 	
+	private int customerId;
 	
 	
-	
-	@ManyToOne
+	//@ManyToOne
 
-	private Customer customer;
+	//private Customer customer;
 	//int customerId=customer.getCustomerId();
 
 	public Trade() {
@@ -134,26 +133,17 @@ public class Trade {
 		this.quantity = quantity;
 	}
 
-	public Customer getCustomer() {
-		return customer;
+	public int getCustomerId() {
+		return customerId;
 	}
 
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
-	
-
-	@Override
-	public String toString() {
-		return "Trade [tradeId=" + tradeId + ", tradeExecutionTime=" + tradeExecutionTime + ", brokerName=" + brokerName
-				+ ", securityId=" + securityId + ", security=" + security + ", securityName=" + securityName
-				+ ", tradeType=" + tradeType + ", marketPrice=" + marketPrice + ", price=" + price + ", isChecked="
-				+ isChecked + ", quantity=" + quantity + ", customer=" + customer + "]";
+	public void setCustomerId(int customerId) {
+		this.customerId = customerId;
 	}
 
 	public Trade(int tradeId, Date tradeExecutionTime, String brokerName, int securityId, int security,
 			String securityName, boolean tradeType, int marketPrice, int price, boolean isChecked, int quantity,
-			Customer customer) {
+			int customerId) {
 		super();
 		this.tradeId = tradeId;
 		this.tradeExecutionTime = tradeExecutionTime;
@@ -166,8 +156,17 @@ public class Trade {
 		this.price = price;
 		this.isChecked = isChecked;
 		this.quantity = quantity;
-		this.customer = customer;
+		this.customerId = customerId;
 	}
+
+	@Override
+	public String toString() {
+		return "Trade [tradeId=" + tradeId + ", tradeExecutionTime=" + tradeExecutionTime + ", brokerName=" + brokerName
+				+ ", securityId=" + securityId + ", security=" + security + ", securityName=" + securityName
+				+ ", tradeType=" + tradeType + ", marketPrice=" + marketPrice + ", price=" + price + ", isChecked="
+				+ isChecked + ", quantity=" + quantity + ", customerId=" + customerId + "]";
+	}
+
 
 	
 	
