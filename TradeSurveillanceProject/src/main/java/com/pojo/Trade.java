@@ -20,7 +20,7 @@ public class Trade {
 	@Id
 	private int tradeId; // for the trade table
 	 
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Kolkata")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 	    
 	private Calendar tradeExecutionTime; // date to be filled
 	
@@ -114,7 +114,7 @@ public class Trade {
 		return marketPrice;
 	}
 
-	public void setMarketPrice(int marketPrice) {
+	public void setMarketPrice(double marketPrice) {
 		this.marketPrice = marketPrice;
 	}
 
@@ -122,8 +122,10 @@ public class Trade {
 		return price;
 	}
 
-	public void setPrice(double d) {
-		this.price = d;
+
+	public void setPrice(double price) {
+		this.price = price;
+
 	}
 
 	public boolean isChecked() {

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,9 +39,21 @@ public class TradeController {
 	public ResponseEntity<List<Trade>> findAllTrades() {
 
 		List<Trade> trade = dao.findAll();
-		ResponseEntity<List<Trade>> response = new ResponseEntity<List<Trade>>(trade, HttpStatus.FOUND);
-
+		
+		if(!trade.isEmpty())
+		{ResponseEntity<List<Trade>> response = new ResponseEntity<List<Trade>>(trade,HttpStatus.FOUND);
+		logger.info("trades found are :" + response);
+		return response;}
+		else
+		{ResponseEntity<List<Trade>> response = new ResponseEntity<List<Trade>>(trade,HttpStatus.NOT_FOUND);
+		logger.info("trades found are :" + response);
 		return response;
+			
+		}
 	}
+	
+	
+	
+
 
 }

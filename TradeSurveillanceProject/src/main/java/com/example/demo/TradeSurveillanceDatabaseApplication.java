@@ -24,31 +24,9 @@ public class TradeSurveillanceDatabaseApplication {
 		GenerateTradeList g = new GenerateTradeList();
 		li = g.Generate();
 		DetectionAlgo d = new DetectionAlgo();
-		ArrayList<ArrayList<Trade>> arr = d.DetectionAl(li);
-		for(int i = 0;i<arr.size();i++)
-		{
-			System.out.println("Front Running Scenario");
-			System.out.println(i+1);
-			for(int j = 0;j<arr.get(i).size();j++)
-			{
-				if(j == 0)
-				{
-					System.out.println("Firm Trade");
-					System.out.println(arr.get(i).get(j).toString());
-				}
-				else if(j == 1)
-				{
-					System.out.println("Customer Trade");
-					System.out.println(arr.get(i).get(j).toString());
-				}
-				else
-				{
-					System.out.println("Firm Trade");
-					System.out.println(arr.get(i).get(j).toString());
-			
-				}
-			}
-		}
+		System.out.println(d.DetectionAl(li));
+		SpringApplication.run(TradeSurveillanceDatabaseApplication.class, args);
+
     
     }
 }
