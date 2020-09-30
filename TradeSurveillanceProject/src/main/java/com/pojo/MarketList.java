@@ -17,66 +17,27 @@ public class MarketList {
 
 	//@Column
 
-	private int security;
-	private String securityName;
-
-	private Date marketTimestamp;
-
-	private double currentMarketPrice;
-
+	double[]price = {0,0,0,0};  // 0-Es, 1-Put 2-Call 3-Fut
 	public MarketList() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
 	public int getSecurityId() {
 		return securityId;
 	}
-
 	public void setSecurityId(int securityId) {
 		this.securityId = securityId;
 	}
-
-	public int getSecurity() {
-		return security;
+	public double[] getPrice() {
+		return price;
 	}
-
-	public void setSecurity(int security) {
-		this.security = security;
+	public void setPrice(double[] price) {
+		this.price = price;
 	}
-
-	public String getSecurityName() {
-		return securityName;
-	}
-
-	public void setSecurityName(String securityName) {
-		this.securityName = securityName;
-	}
-
-	public Date getMarketTimestamp() {
-		return marketTimestamp;
-	}
-
-	public void setMarketTimestamp(Date marketTimestamp) {
-		this.marketTimestamp = marketTimestamp;
-	}
-
-	public double getCurrentMarketPrice() {
-		return currentMarketPrice;
-	}
-
-	public void setCurrentMarketPrice(double currentMarketPrice) {
-		this.currentMarketPrice = currentMarketPrice;
-	}
-
-	public MarketList(int securityId, int security, String securityName, Date marketTimestamp,
-			double currentMarketPrice) {
+	public MarketList(int securityId, double[] price) {
 		super();
 		this.securityId = securityId;
-		this.security = security;
-		this.securityName = securityName;
-		this.marketTimestamp = marketTimestamp;
-		this.currentMarketPrice = currentMarketPrice;
+		this.price = price;
 	}
 
 	
