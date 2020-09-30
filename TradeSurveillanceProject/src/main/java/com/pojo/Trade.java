@@ -1,5 +1,6 @@
 package com.pojo;
 
+import java.util.Calendar;
 import java.util.Date;
 
 
@@ -21,7 +22,7 @@ public class Trade {
 	 
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Kolkata")
 	    
-	private Date tradeExecutionTime; // date to be filled
+	private Calendar tradeExecutionTime; // date to be filled
 	
 	private String brokerName;
 	
@@ -60,11 +61,12 @@ public class Trade {
 		this.tradeId = tradeId;
 	}
 
-	public Date getTradeExecutionTime() {
+	
+	public Calendar getTradeExecutionTime() {
 		return tradeExecutionTime;
 	}
 
-	public void setTradeExecutionTime(Date tradeExecutionTime) {
+	public void setTradeExecutionTime(Calendar tradeExecutionTime) {
 		this.tradeExecutionTime = tradeExecutionTime;
 	}
 
@@ -148,7 +150,7 @@ public class Trade {
 		this.customerId = customerId;
 	}
 
-	public Trade(int tradeId, Date tradeExecutionTime, String brokerName, int securityId, int security,
+	public Trade(int tradeId, Calendar tradeExecutionTime, String brokerName, int securityId, int security,
 			String securityName, boolean tradeType, int marketPrice, int price, boolean isChecked, int quantity,
 			int customerId) {
 		super();
