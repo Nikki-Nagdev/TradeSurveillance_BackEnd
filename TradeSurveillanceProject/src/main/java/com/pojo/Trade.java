@@ -33,8 +33,8 @@ public class Trade {
 	private String securityName;
 	private boolean tradeType;
 	
-	private int marketPrice;
-	private int price;
+	private double marketPrice;
+	private double price;
 	
 	private boolean isChecked;
 	
