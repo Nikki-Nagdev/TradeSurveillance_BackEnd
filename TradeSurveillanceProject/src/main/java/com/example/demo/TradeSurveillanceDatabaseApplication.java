@@ -23,6 +23,7 @@ public class TradeSurveillanceDatabaseApplication {
 		li = g.Generate();
 		DetectionAlgo d = new DetectionAlgo();
 		System.out.println(d.DetectionAl(li));
+		SpringApplication.run(TradeSurveillanceDatabaseApplication.class, args);
     
     }
 }
