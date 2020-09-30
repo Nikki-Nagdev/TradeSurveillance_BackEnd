@@ -110,19 +110,19 @@ public class Trade {
 		this.tradeType = tradeType;
 	}
 
-	public int getMarketPrice() {
+	public double getMarketPrice() {
 		return marketPrice;
 	}
 
-	public void setMarketPrice(int marketPrice) {
+	public void setMarketPrice(double marketPrice) {
 		this.marketPrice = marketPrice;
 	}
 
-	public int getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-	public void setPrice(int price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 
