@@ -12,9 +12,6 @@ public class MarketList {
 
 	//@Id
 	private int securityId;
-	
-
-
 	//@Column
 
 	double[]price = {0,0,0,0};  // 0-Es, 1-Put 2-Call 3-Fut

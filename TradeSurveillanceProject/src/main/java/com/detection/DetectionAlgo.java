@@ -2,47 +2,65 @@ package com.detection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import com.pojo.Trade;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
-import com.pojo.TradeList;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 
+//import com.itextpdf.text.List;
+import com.itextpdf.text.ListItem;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 public class DetectionAlgo {
-	
+
 	double threshold = 100000;
 	int seconds = 2;
-	
 
-	public boolean DetectionAl(List<TradeList> li)
+
+	public ArrayList<ArrayList<Trade>> DetectionAl(List<Trade> li)
 	{
+//		Document document = new Document();
+//
+//		try {
+//			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("../FrontRunningScenarios.pdf"));
+//		}catch(DocumentException | FileNotFoundException e){
+//
+//		}
+		ArrayList<ArrayList<Trade>> frlist = new ArrayList<ArrayList<Trade>>();
+
+		//		/*one space allocated for 0th row*/
+		//        x.add(new ArrayList<Integer>()); 
+		//  
+		//        /*Adding 3 to 0th row created above x(0, 0)*/
+		//        x.get(0).add(0, 3); 
+		//		
 		for(int i = 0;i<li.size();i++)
 		{
 			if(li.get(i).getPrice() * li.get(i).getQuantity()>=threshold 
-					&& li.get(i).isChecked == false && li.get(i).getCustomerId()!=200)
+					&& li.get(i).isChecked() == false && li.get(i).getCustomerId()!=200)
 			{
 				int inter[]=Interval(i,li); 
 				if(inter[0]==inter[1]&&inter[1]==inter[2])
 					continue;
-				boolean frontRun=false;
-				
+				ArrayList<Trade> Temp = new ArrayList<>();
 				if(li.get(i).getSecurity()==1 || li.get(i).getSecurity()==4)
-					frontRun= DetectESF(inter,li);
+					Temp= DetectESF(inter,li);
 				else if(li.get(i).getSecurity() == 2)
-					frontRun= DetectPut(inter, li);
+					Temp= DetectPut(inter, li);
 				else
-					frontRun= DetectCall(inter, li);
-					
-				if(frontRun)
-				{
-					System.out.print("Front Running scenario detected at index ");
-					System.out.print(i);
-					System.out.print("  ");
-					System.out.println(li.get(i).toString());
-				}
+					Temp= DetectCall(inter, li);
 				
+				if(Temp.size()!=0)
+					frlist.add(Temp);
 			}
 		}
-		return true;
+		//document.close();
+		//writer.close();
+		return frlist;
 	}
-	public int[] Interval(int index,List<TradeList>li){
+	public int[] Interval(int index,List<Trade>li){
 		int interval[]= {0,0,0};
 		if(index == 0 || index == li.size()-1)
 			return interval; 
@@ -51,10 +69,10 @@ public class DetectionAlgo {
 		befc.add(Calendar.SECOND, -10);
 		Calendar afterc = (Calendar)tempc.clone();
 		afterc.add(Calendar.SECOND,10);
-		
+
 		interval[1]=index;
 		int i = index;
-		
+
 		while(befc.before(tempc))
 		{
 			i--;
@@ -76,200 +94,295 @@ public class DetectionAlgo {
 
 	}
 
-	
-public boolean DetectESF(int interval[],List<TradeList>li) {
-  int custIndex=interval[1];
-  int startIndex=interval[0];
-  int endIndex=interval[2];
-  
-  boolean alert=false;
-   //If customer buys equities or futures
-  if(li.get(custIndex).getOrderType())
-  {
-    int j=custIndex-1;
-    
-    while(startIndex<=j)
-    {
-       if(((li.get(j).getOrderType()==true)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4||li.get(j).getSecurity()==3))||(li.get(j).getOrderType()==false&&li.get(j).getSecurity()==2)&&li.get(j).getCustomerId()==200)
-       {
-         int i=custIndex+1;
-         while(i<=endIndex)
-         {
-           if((!li.get(i).getOrderType()==li.get(j).getOrderType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200)
-           {
-             
-             li.get(j).setChecked(true);
-        	 li.get(i).setChecked(true);
-             li.get(custIndex).setChecked(true);
-             alert=true;
-           }
-           i=i+1;
-         }
-       }
-      if(alert)
-        return alert;
-      j=j-1;
-    } 
-  }
-   //If customer sells equities or futures
-   else
-   {
-    int j=custIndex-1;
-    
-    while(startIndex<=j)
-    {
-       if(((li.get(j).getOrderType()==false)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4||li.get(j).getSecurity()==3))||(li.get(j).getOrderType()==true&&li.get(j).getSecurity()==2)&&li.get(j).getCustomerId()==200)
-       {
-         int i=custIndex+1;
-         while(i<=endIndex)
-         {
-           if((!li.get(i).getOrderType()==li.get(j).getOrderType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200)
-           {
-             
-             li.get(j).setChecked(true);
-             li.get(i).setChecked(true);
-             li.get(custIndex).setChecked(true);
-             alert=true;
-           }
-           i=i+1;
-         }
-       }
-      if(alert)
-        return alert;
-      j=j-1;
-    } 
-   } 
-		return alert;
+
+	public ArrayList<Trade> DetectESF(int interval[],List<Trade>li) {
+		int custIndex=interval[1];
+		int startIndex=interval[0];
+		int endIndex=interval[2];
+
+
+		//If customer buys equities or futures
+		ArrayList<Trade>tempList = new ArrayList<>();
+
+		if(li.get(custIndex).isTradeType())
+		{
+			int j=custIndex-1;
+
+			while(startIndex<=j)
+			{
+				if((((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4||li.get(j).getSecurity()==3))||
+						(li.get(j).isTradeType()==false&&li.get(j).getSecurity()==2))&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				{
+					int i=custIndex+1;
+					while(i<=endIndex)
+					{
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						{
+							// Print into a file or enter into db
+							if(!li.get(j).isChecked())
+							{
+								tempList.add(li.get(j));
+								li.get(j).setChecked(true);
+
+								tempList.add(li.get(custIndex));
+								li.get(custIndex).setChecked(true);
+
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true);
+							}
+							else
+							{
+								li.get(i).setChecked(true); 
+								tempList.add(li.get(i));
+							}
+
+						}
+						i=i+1;
+					}
+				}
+				if(tempList.size()!=0)
+				{
+					return tempList;
+				}
+				j=j-1;
+			} 
+		}
+		//If customer sells equities or futures
+		else
+		{
+			int j=custIndex-1;
+
+			while(startIndex<=j)
+			{
+				if((((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==1||li.get(j).getSecurity()==4||li.get(j).getSecurity()==3))||(li.get(j).isTradeType()==true&&li.get(j).getSecurity()==2))&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				{
+					int i=custIndex+1;
+					while(i<=endIndex)
+					{
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						{
+
+							if(!li.get(j).isChecked())
+							{
+								tempList.add(li.get(j));
+								li.get(j).setChecked(true);
+
+								tempList.add(li.get(custIndex));
+								li.get(custIndex).setChecked(true);
+
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true);
+							}
+							else
+							{
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true); 
+							}
+
+						}
+						i=i+1;
+					}
+				}
+				if(tempList.size()!=0)
+				{
+					return tempList;
+				}
+				j=j-1;
+			} 
+		} 
+		return tempList;
 	}
-	
-public boolean DetectCall(int interval[],List<TradeList>li)
-{
-  int custIndex=interval[1];
-  int startIndex=interval[0];
-  int endIndex=interval[2];
-  int p1=custIndex,p2=custIndex;
-  boolean alert=false;
-  //If customer buys call options
-  if(li.get(custIndex).getOrderType())
-  {
-    int j=custIndex-1;
-    
-    while(startIndex<=j)
-    {
-       if((li.get(j).getOrderType()==true)&&(li.get(j).getSecurity()==3)&&li.get(j).getCustomerId()==200)
-       {
-         int i=custIndex+1;
-         while(i<=endIndex)
-         {
-           if((!li.get(i).getOrderType()==li.get(j).getOrderType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200)
-           {
-        	   li.get(j).setChecked(true);
-               li.get(i).setChecked(true);
-               li.get(custIndex).setChecked(true);
-             alert=true;
-           }
-           i=i+1;
-         }
-       }
-      if(alert)
-        return alert;
-      j=j-1;
-    }
-  }
-    
-    //If firm sells call options
-    else
-    {
-      int j=custIndex-1;
-      
-    while(startIndex<=j)
-    {
-       if((li.get(j).getOrderType()==false)&&(li.get(j).getSecurity()==3)&&li.get(j).getCustomerId()==200)
-       {
-         int i=custIndex+1;
-         while(i<=endIndex)
-         {
-           if((!li.get(i).getOrderType()==li.get(j).getOrderType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200)
-           {
-             
-        	   li.get(j).setChecked(true);
-               li.get(i).setChecked(true);
-               li.get(custIndex).setChecked(true);
-             alert=true;
-           }
-           i=i+1;
-         }
-       }
-      if(alert)
-        return alert;
-      j=j-1;
-    }
-  }
-    return alert;
-}
-  
-  
-  public boolean DetectPut(int interval[],List<TradeList>li)
-{
-  int custIndex=interval[1];
-  int startIndex=interval[0];
-  int endIndex=interval[2];
-  int p1=custIndex,p2=custIndex;
-  boolean alert=false;
-  if(li.get(custIndex).getOrderType())
-  {
-    int j=custIndex-1;
-    
-    while(startIndex<=j)
-    {
-       if((li.get(j).getOrderType()==true)&&(li.get(j).getSecurity()==2)&&li.get(j).getCustomerId()==200)
-       {
-         int i=custIndex+1;
-         while(i<=endIndex)
-         {
-           if((!li.get(i).getOrderType()==li.get(j).getOrderType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200)
-           {
-             
-        	   li.get(j).setChecked(true);
-               li.get(i).setChecked(true);
-               li.get(custIndex).setChecked(true);
-             alert=true;
-           }
-           i=i+1;
-         }
-       }
-      if(alert)
-        return alert;
-      j=j-1;
-    }
-  }
-    else
-    {
-      int j=custIndex-1;
-      
-    while(startIndex<=j)
-    {
-       if((li.get(j).getOrderType()==false)&&(li.get(j).getSecurity()==2)&&li.get(j).getCustomerId()==200)
-       {
-         int i=custIndex+1;
-         while(i<=endIndex)
-         {
-           if((!li.get(i).getOrderType()==li.get(j).getOrderType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&li.get(i).getCustomerId()==200)
-           {
-             
-        	   li.get(j).setChecked(true);
-               li.get(i).setChecked(true);
-               li.get(custIndex).setChecked(true);
-             alert=true;
-           }
-           i=i+1;
-         }
-       }
-      if(alert)
-        return alert;
-      j=j-1;
-    }
-  }
-    return alert;
-}
+
+	public ArrayList<Trade> DetectCall(int interval[],List<Trade>li)
+	{
+		int custIndex=interval[1];
+		int startIndex=interval[0];
+		int endIndex=interval[2];
+
+		//If customer buys call options
+		ArrayList<Trade>tempList = new ArrayList<>();
+
+		if(li.get(custIndex).isTradeType())
+		{
+			int j=custIndex-1;
+
+			while(startIndex<=j)
+			{
+				if((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==3)&&li.get(j).getCustomerId()==200&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				{
+					int i=custIndex+1;
+					while(i<=endIndex)
+					{
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						{
+							if(!li.get(j).isChecked())
+							{
+								tempList.add(li.get(j));
+								li.get(j).setChecked(true);
+
+								tempList.add(li.get(custIndex));
+								li.get(custIndex).setChecked(true);
+
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true);
+							}
+							else
+							{
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true); 
+							}
+						}
+						i=i+1;
+					}
+				}
+				if(tempList.size()!=0)
+				{
+					return tempList;
+				}
+				j=j-1;
+			}
+		}
+
+		//If firm sells call options
+		else
+		{
+			int j=custIndex-1;
+
+			while(startIndex<=j)
+			{
+				if((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==3)&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				{
+					int i=custIndex+1;
+					while(i<=endIndex)
+					{
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						{
+
+							if(!li.get(j).isChecked())
+							{
+								tempList.add(li.get(j));
+								li.get(j).setChecked(true);
+
+								tempList.add(li.get(custIndex));
+								li.get(custIndex).setChecked(true);
+
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true);
+							}
+							else
+							{
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true); 
+							} 
+
+						}
+						i=i+1;
+					}
+				}
+				if(tempList.size()!=0)
+				{
+					return tempList;
+				}
+				j=j-1;
+			}
+		}
+		return tempList;
+	}
+
+
+	public ArrayList<Trade> DetectPut(int interval[],List<Trade>li)
+	{
+		int custIndex=interval[1];
+		int startIndex=interval[0];
+		int endIndex=interval[2];
+		//int p1=custIndex,p2=custIndex;
+
+		ArrayList<Trade>tempList = new ArrayList<>();
+
+		if(li.get(custIndex).isTradeType())
+		{
+			int j=custIndex-1;
+
+			while(startIndex<=j)
+			{
+				if((li.get(j).isTradeType()==true)&&(li.get(j).getSecurity()==2)&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				{
+					int i=custIndex+1;
+					while(i<=endIndex)
+					{
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						{
+
+							if(!li.get(j).isChecked())
+							{
+								tempList.add(li.get(j));
+								li.get(j).setChecked(true);
+
+								tempList.add(li.get(custIndex));
+								li.get(custIndex).setChecked(true);
+
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true);
+							}
+							else
+							{
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true); 
+							}
+
+						}
+						i=i+1;
+					}
+				}
+				if(tempList.size()!=0)
+				{
+					return tempList;
+				}
+				j=j-1;
+			}
+		}
+		else
+		{
+			int j=custIndex-1;
+
+			while(startIndex<=j)
+			{
+				if((li.get(j).isTradeType()==false)&&(li.get(j).getSecurity()==2)&&(li.get(j).getCustomerId()==200)&&(li.get(j).getSecurityId()==li.get(custIndex).getSecurityId()))
+				{
+					int i=custIndex+1;
+					while(i<=endIndex)
+					{
+						if((!li.get(i).isTradeType()==li.get(j).isTradeType())&&(li.get(j).getSecurity()==li.get(i).getSecurity())&&(li.get(i).getCustomerId()==200)&&(li.get(i).getSecurityId()==li.get(custIndex).getSecurityId()))
+						{
+
+							if(!li.get(j).isChecked())
+							{
+								tempList.add(li.get(j));
+								li.get(j).setChecked(true);
+
+								tempList.add(li.get(custIndex));
+								li.get(custIndex).setChecked(true);
+
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true);
+							}
+							else
+							{
+								tempList.add(li.get(i));
+								li.get(i).setChecked(true); 
+							}
+
+						}
+						i=i+1;
+					}
+				}
+				if(tempList.size()!=0)
+				{
+					return tempList;
+				}
+				j=j-1;
+			}
+		}
+		return tempList;
+	}
 }

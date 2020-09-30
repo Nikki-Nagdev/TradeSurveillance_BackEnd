@@ -6,25 +6,36 @@ import java.util.Arrays;
 import java.util.Random;
 
 import com.pojo.MarketList;
-import com.pojo.TradeList;
+import com.pojo.Trade;
+
 
 public class GenerateTradeList {
+	
 
-
-	public List<TradeList> Generate()
+	public List<Trade> Generate()
 	{
-		MarketList ML=new MarketList();
-		double init[] = {115,20,20,120};
-		ML.setPrice(init);
+		List<MarketList> ML = new ArrayList<>();
+		double apple[] = {115,20,20,120};
+		double fb[]= {250,15,15,270};
+		double walmart[] = {137,18,20,145};
+		ML.add(new MarketList(1,apple));
+		ML.add(new MarketList(2,fb));
+		ML.add(new MarketList(3,walmart));
+
 
 		int random;
 		int [] cid={1,2,3,200};
+		String [] bname = {"b1","b2","b3"};
+		int index=0;
 		int [] sec={1,2,3,4};
+		String Sname[][]= {{"Apple ES","Apple Put Option","Apple Call Option","Apple Futures"},
+							{"Facebook ES","Facebook Put Option","Facebook Call Option","Facebook Futures"},
+							{"Walmart ES","Walmart Put Option","Walmart Call Option","Walmart Futures"}};
 		boolean [] type={true,false};
 		int fbr=0; 
 		int []fr={1000,1000,1000};
 
-
+		
 		int arr[] = {100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000};  
 		int freq[] = {1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,4};  
 		int n = arr.length;
@@ -37,130 +48,181 @@ public class GenerateTradeList {
 		int [] frindex=new int[random];
 		int frpointer=0; 
 		for(int i = 0;i<random;i++)
+		{
 			frindex[i]=rand.nextInt(292);
-		
+
+		}
+
 		Arrays.sort(frindex);
 
-		List<TradeList>li = new ArrayList<>();
+		for(int i = 0;i<random;i++)
+		{
+			if(i!=0&&frindex[i]-frindex[i-1]<15)
+				frindex[i]+=15;
+
+
+		}
+
+		List<Trade>li = new ArrayList<>();
 		Calendar c = Calendar.getInstance();
+		
 		for(int i = 0;i<300;i++)
 		{
-			TradeList t = new TradeList(); 
-			t.getTradeExecutionTime().setTime(c.getTime());
-			li.add(t);
-			//li.set(i,t);   /// CHeck if required
+			li.add(new Trade());
+			li.get(i).getTradeExecutionTime().setTime(c.getTime());
+			li.get(i).setTradeId(i+1);
+//			Trade t = new Trade(); 
+//			t.getTradeExecutionTime().setTime(c.getTime());
 			c.add(Calendar.SECOND, 2);
 		}
+		
 		int count = 0;
 		for(int i=0;i<300;i++)
 		{	
 
-			List<TradeList>frl=new ArrayList<>();
-			frl.add(new TradeList());
-			frl.add(new TradeList());
-			frl.add(new TradeList());
-			if(frpointer<a&&i==frindex[frpointer])
+			List<Trade>frl=new ArrayList<>();
+			frl.add(new Trade());
+			frl.add(new Trade());
+			frl.add(new Trade());
+			if(frpointer<a&&fr[0]+fr[1]+fr[2]==3000&&i==frindex[frpointer])
 			{
 
 				frl = getScenario();
-				
+
 				fr[0]=i;
-				fr[1]=rand.nextInt(5)+i; 
-				fr[2]=rand.nextInt(5)+fr[1];
+				fr[1]=rand.nextInt(5)+i+1; 
+				fr[2]=rand.nextInt(5)+fr[1]+1;
+				
 				// The split number for the final firm trade in the fr scenario
 				fbr=rand.nextInt(4)+1; 
 				//code for front running scenario  
 
-				if(frpointer+1<a &&frindex[frpointer+1]<fr[2]) 
-					frindex[frpointer+1]=fr[2]+1+fbr;
-				else
-					frpointer++;
+				frpointer++;
 
 				//firm trade
 				li.get(fr[0]).setCustomerId(frl.get(0).getCustomerId());
 				li.get(fr[0]).setSecurity(frl.get(0).getSecurity());
-				li.get(fr[0]).setOrderType(frl.get(0).getOrderType());
+				li.get(fr[0]).setTradeType(frl.get(0).isTradeType());
 				li.get(fr[0]).setQuantity(frl.get(0).getQuantity());
-				li.get(fr[0]).setPrice(ML.getPrice()[li.get(fr[0]).getSecurity()-1]);
-				PriceFluctuation(ML, li.get(fr[0]).getOrderType(), li.get(fr[0]).getQuantity(), li.get(fr[0]).getSecurity());
-
+				li.get(fr[0]).setSecurityId(frl.get(0).getSecurityId());
+				li.get(fr[0]).setBrokerName(frl.get(0).getBrokerName());
+				index = frl.get(0).getSecurityId()-1; 
+				
+				//customer trade
 				li.get(fr[1]).setCustomerId(frl.get(1).getCustomerId());
 				li.get(fr[1]).setSecurity(frl.get(1).getSecurity());
-				li.get(fr[1]).setOrderType(frl.get(1).getOrderType());
+				li.get(fr[1]).setTradeType(frl.get(1).isTradeType());
 				li.get(fr[1]).setQuantity(frl.get(1).getQuantity());
-				li.get(fr[1]).setPrice(ML.getPrice()[li.get(fr[1]).getSecurity()-1]);
-				PriceFluctuation(ML, li.get(fr[1]).getOrderType(), li.get(fr[1]).getQuantity(), li.get(fr[1]).getSecurity());
-
-					for(int k=0;k<fbr;k++)
-					{
-
-						li.get(fr[2]+k).setCustomerId(frl.get(2).getCustomerId());
-						li.get(fr[2]+k).setSecurity(frl.get(2).getSecurity());
-						li.get(fr[2]+k).setOrderType(frl.get(2).getOrderType());
-						li.get(fr[2]+k).setQuantity(frl.get(2).getQuantity()/fbr);
-						li.get(fr[2]+k).setPrice(ML.getPrice()[li.get(i).getSecurity()-1]);
-						PriceFluctuation(ML, li.get(fr[2]+k).getOrderType(), li.get(fr[2]+k).getQuantity(), li.get(fr[2]+k).getSecurity());
-
-					}
+				li.get(fr[1]).setSecurityId(frl.get(1).getSecurityId());
+				li.get(fr[1]).setBrokerName(frl.get(0).getBrokerName());
 				
+				//firm trade
+				for(int k=0;k<fbr;k++)
+				{
+					index = frl.get(2).getSecurityId()-1; 
+					li.get(fr[2]+k).setCustomerId(frl.get(2).getCustomerId());
+					li.get(fr[2]+k).setSecurity(frl.get(2).getSecurity());
+					li.get(fr[2]+k).setTradeType(frl.get(2).isTradeType());
+					li.get(fr[2]+k).setSecurityId(frl.get(2).getSecurityId());
+					li.get(fr[2]+k).setBrokerName(frl.get(0).getBrokerName());
+					
+					if(k==fbr-1)
+					{	
+						int q = frl.get(2).getQuantity()-((k)*(frl.get(2).getQuantity()/fbr));
+						li.get(fr[2]+k).setQuantity(q);
+					}
+					else
+					{	
+						li.get(fr[2]+k).setQuantity(frl.get(2).getQuantity()/fbr);						
+					}
+		
+				}
+
 
 			}
 
 			if(i==fr[0])
 			{
-				System.out.println(count);
-				count++;
-				System.out.println("Firm Trade");
-				System.out.println(li.get(i).toString());
+
+				li.get(fr[0]).setMarketPrice(ML.get(index).getPrice()[li.get(fr[0]).getSecurity()-1]);
+				li.get(fr[0]).setPrice(ML.get(index).getPrice()[li.get(fr[0]).getSecurity()-1]+rand.nextDouble());
+				li.get(i).setSecurityName(Sname[li.get(i).getSecurityId()-1][li.get(i).getSecurity()-1]);
+				PriceFluctuation(ML, li.get(i).isTradeType(), li.get(i).getQuantity(), li.get(i).getSecurity(),index);
+				fr[0]=1000;
 				continue;
 
 			}
 			if(i==fr[1])
 			{   
-				System.out.println(count);
-				count++;
-				System.out.println("Customer Trade");
-				System.out.println(li.get(i).toString());
+				li.get(i).setMarketPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]);
+				li.get(i).setPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]+rand.nextDouble());
+				li.get(i).setSecurityName(Sname[li.get(i).getSecurityId()-1][li.get(i).getSecurity()-1]);
+				
+				PriceFluctuation(ML, li.get(i).isTradeType(), li.get(i).getQuantity(), li.get(i).getSecurity(),index);
+				
+				fr[1]=1000;
 				continue;
 			}
 			if(i==fr[2])
 			{
-					
-				for(int k=0;k<fbr;k++)
+				
+				if(fbr == 1)
 				{
-
-					System.out.println(count);
-					count++;
-					System.out.println("Broken up trades");
-					System.out.println(li.get(i).toString());
-					i++;
+					li.get(i).setMarketPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]);
+					li.get(i).setPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]+rand.nextDouble());
+					li.get(i).setSecurityName(Sname[li.get(i).getSecurityId()-1][li.get(i).getSecurity()-1]);
+					PriceFluctuation(ML, li.get(i).isTradeType(), li.get(i).getQuantity(), li.get(i).getSecurity(),index);
+					break;
 				}
-			
-			
+				else {
+					int k = 1;
+					for( k=1;k<fbr;k++)
+					{
+						li.get(i).setMarketPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]);
+						li.get(i).setPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]+rand.nextDouble());
+						li.get(i).setSecurityName(Sname[li.get(i).getSecurityId()-1][li.get(i).getSecurity()-1]);
+						
+						PriceFluctuation(ML, li.get(i).isTradeType(), li.get(i).getQuantity(), li.get(i).getSecurity(),index);
+						
+						i++;
+					}
+					li.get(i).setMarketPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]);
+					li.get(i).setPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]+rand.nextDouble());
+					li.get(i).setSecurityName(Sname[li.get(i).getSecurityId()-1][li.get(i).getSecurity()-1]);
+					PriceFluctuation(ML, li.get(i).isTradeType(), li.get(i).getQuantity(), li.get(i).getSecurity(),index);
+				}
+				fr[2]=1000;
 				continue;
 
 			}
 			//random customer id
 			random = rand.nextInt(4);
 			li.get(i).setCustomerId(cid[random]); //0 - 3
+			random = rand.nextInt(2);
+			li.get(i).setBrokerName(bname[random]);
 			//random security
+			int security = rand.nextInt(3)+1;
 
+			li.get(i).setSecurityId(security);
+			index = li.get(i).getSecurityId()-1;
 			//random type
 			random = rand.nextInt(2);
-			li.get(i).setOrderType(type[random]);
+			li.get(i).setTradeType(type[random]);
 			// isChecked taken care of by constructor
 			//random quantity distribution ?
 			li.get(i).setQuantity( myRand(arr, freq, n));
 			random = rand.nextInt(4); //0-3
 			li.get(i).setSecurity(random+1);
 			//price based on quantity
-			li.get(i).setPrice(ML.getPrice()[random]);
-			PriceFluctuation(ML, li.get(i).getOrderType(), li.get(i).getQuantity(), li.get(i).getSecurity());
-		    System.out.println(count);
-			count++;
-			System.out.println(li.get(i).toString());
+			li.get(i).setMarketPrice(ML.get(index).getPrice()[random]);
+			li.get(i).setPrice(ML.get(index).getPrice()[li.get(i).getSecurity()-1]+rand.nextDouble());
+			li.get(i).setSecurityName(Sname[li.get(i).getSecurityId()-1][li.get(i).getSecurity()-1]);
+			
+			PriceFluctuation(ML, li.get(i).isTradeType(), li.get(i).getQuantity(), li.get(i).getSecurity(),index);
 		}
+		
 		return li;
+		
 	}
 
 
@@ -195,19 +257,23 @@ public class GenerateTradeList {
 		int indexc = findCeil(prefix, r, 0, n - 1);  
 		return arr[indexc];  
 	}  
-	public List<TradeList> getScenario()
+	public List<Trade> getScenario()
 	{
+		
 		Random rand = new Random();
-		List<TradeList>sc = new ArrayList<>();
-		sc.add(new TradeList());
-		sc.add(new TradeList());
-		sc.add(new TradeList());
-
+		List<Trade>sc = new ArrayList<>();
+		sc.add(new Trade());
+		sc.add(new Trade());
+		sc.add(new Trade());
+		String [] bname = {"b1","b2","b3"};
+		String b=bname[rand.nextInt(3)];
+		sc.get(0).setBrokerName(b);
+		sc.get(1).setBrokerName(b);
+		sc.get(2).setBrokerName(b);
 		int num=rand.nextInt(3)+1;
 		sc.get(0).setCustomerId(200);
 		sc.get(1).setCustomerId(num);
 		sc.get(2).setCustomerId(200);
-
 		int quant=rand.nextInt(300)+400;
 		sc.get(0).setQuantity(quant); 
 		quant=rand.nextInt(100)+900;
@@ -216,6 +282,11 @@ public class GenerateTradeList {
 		sc.get(2).setQuantity(quant);  
 
 		num=rand.nextInt(2)+1;
+		int security = rand.nextInt(3)+1;
+
+		sc.get(0).setSecurityId(security);
+		sc.get(1).setSecurityId(security);
+		sc.get(2).setSecurityId(security);
 		switch(num)
 		{
 		case 1:
@@ -231,19 +302,19 @@ public class GenerateTradeList {
 
 			if(f)
 			{
-				sc.get(1).setOrderType(true);
+				sc.get(1).setTradeType(true);
 			} 
 			else
 			{
-				sc.get(1).setOrderType(false);
+				sc.get(1).setTradeType(false);
 			}
 
 			if(num2==2)
-				sc.get(0).setOrderType(!sc.get(1).getOrderType());
+				sc.get(0).setTradeType(!sc.get(1).isTradeType());
 			else
-				sc.get(0).setOrderType(sc.get(1).getOrderType());
+				sc.get(0).setTradeType(sc.get(1).isTradeType());
 
-			sc.get(2).setOrderType(!sc.get(0).getOrderType());   
+			sc.get(2).setTradeType(!sc.get(0).isTradeType());   
 			return sc;
 
 		case 2:
@@ -254,43 +325,54 @@ public class GenerateTradeList {
 			sc.get(0).setSecurity(sec1[num1]);
 			sc.get(1).setSecurity(sec1[num1]);
 			sc.get(2).setSecurity(sec1[num1]);
+			sc.get(0).setQuantity(sc.get(0).getQuantity()*10);
+			sc.get(1).setQuantity(sc.get(1).getQuantity()*10);
+			sc.get(2).setQuantity(sc.get(2).getQuantity()*10);
+			
 			f =rand.nextBoolean();
 			if(f)
 			{
-				sc.get(1).setOrderType(true);
-				sc.get(0).setOrderType(true);
-				sc.get(2).setOrderType(false);
+				sc.get(1).setTradeType(true);
+				sc.get(0).setTradeType(true);
+				sc.get(2).setTradeType(false);
 			} 
 			else
 			{
-				sc.get(1).setOrderType(false);
-				sc.get(0).setOrderType(false);
-				sc.get(2).setOrderType(true);
+				sc.get(1).setTradeType(false);
+				sc.get(0).setTradeType(false);
+				sc.get(2).setTradeType(true);
 			}
 
 			return sc;      
 		}
 		return sc;
 	}
-	public void PriceFluctuation(MarketList ml,boolean orderType, int quantity, int security) {
+	public void PriceFluctuation(List<MarketList> ml,boolean tradeType, int quantity, int security,int index) {
 
-		int type = (orderType)?1:-1;
+		int type = (tradeType)?1:-1;
 
 		if(security == 1||security ==4)
 		{
-			ml.getPrice()[0] += 0.001 * quantity*type;
-			ml.getPrice()[1] -= 0.0005 * quantity*type;
-			ml.getPrice()[2] += 0.0005 * quantity* type;
-			ml.getPrice()[3] += 0.001 * quantity* type;
+			ml.get(index).getPrice()[0] += 0.001 * quantity*type;
+			ml.get(index).getPrice()[1] -= 0.0005 * quantity*type;
+			ml.get(index).getPrice()[2] += 0.0005 * quantity* type;
+			ml.get(index).getPrice()[3] += 0.001 * quantity* type;
 		}
 		else if(security == 2)
-			ml.getPrice()[1]-=0.001*quantity*type;
+			{
+			if(ml.get(index).getPrice()[1]-0.0001*quantity*type>0)
+				ml.get(index).getPrice()[1]-=0.0001*quantity*type;
+			else
+				ml.get(index).getPrice()[1]+=0.0001*quantity*type;
+			}	
 		else
-			ml.getPrice()[2]+=0.001*quantity*type;
-
+			if(ml.get(index).getPrice()[1]+0.0001*quantity*type>0)
+				ml.get(index).getPrice()[1]+=0.0001*quantity*type;
+			else
+				ml.get(index).getPrice()[1]-=0.0001*quantity*type;
+		
 
 	}
+	
 
 }
-
-

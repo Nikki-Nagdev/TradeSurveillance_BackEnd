@@ -27,10 +27,9 @@ public class Trade {
 	private String brokerName;
 	
 	
-	private int securityId;
-
-	private int security;
-	private String securityName;
+	private int securityId; // 301 201 102 402 
+	private int security;    // 1 2 3 4
+	private String securityName; // Apple walmart facebook 
 	private boolean tradeType;
 	
 	private double marketPrice;
@@ -50,7 +49,8 @@ public class Trade {
 
 	public Trade() {
 		super();
-		// TODO Auto-generated constructor stub
+		this.tradeExecutionTime = Calendar.getInstance();
+		this.isChecked = false;
 	}
 
 	public int getTradeId() {
@@ -122,8 +122,10 @@ public class Trade {
 		return price;
 	}
 
+
 	public void setPrice(double price) {
 		this.price = price;
+
 	}
 
 	public boolean isChecked() {
@@ -150,6 +152,10 @@ public class Trade {
 		this.customerId = customerId;
 	}
 
+	public void setMarketPrice(double marketPrice) {
+		this.marketPrice = marketPrice;
+	}
+
 	public Trade(int tradeId, Calendar tradeExecutionTime, String brokerName, int securityId, int security,
 			String securityName, boolean tradeType, int marketPrice, int price, boolean isChecked, int quantity,
 			int customerId) {
@@ -170,7 +176,7 @@ public class Trade {
 
 	@Override
 	public String toString() {
-		return "Trade [tradeId=" + tradeId + ", tradeExecutionTime=" + tradeExecutionTime + ", brokerName=" + brokerName
+		return "Trade [tradeId=" + tradeId + ", tradeExecutionTime=" + tradeExecutionTime.getTime() + ", brokerName=" + brokerName
 				+ ", securityId=" + securityId + ", security=" + security + ", securityName=" + securityName
 				+ ", tradeType=" + tradeType + ", marketPrice=" + marketPrice + ", price=" + price + ", isChecked="
 				+ isChecked + ", quantity=" + quantity + ", customerId=" + customerId + "]";
