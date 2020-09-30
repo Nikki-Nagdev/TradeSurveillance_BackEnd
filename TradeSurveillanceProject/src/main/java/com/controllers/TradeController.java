@@ -52,22 +52,7 @@ public class TradeController {
 		}
 	}
 	
-	@GetMapping("/detection")
-	public ResponseEntity<List<Trade>> findFrontRunning(){
-		
-		List<Trade> scenario =dao.findByIsChecked(true);
-		if(!scenario.isEmpty())
-		{ResponseEntity<List<Trade>> response = new ResponseEntity<List<Trade>>(scenario,HttpStatus.FOUND);
-		logger.info("Front running trades found are :" + response);
-		return response;}
-		else
-		{ResponseEntity<List<Trade>> response = new ResponseEntity<List<Trade>>(scenario,HttpStatus.NOT_FOUND);
-		logger.info("No front running trades found  :" + response);
-		return response;
-			
-		}
 	
-	}
 	
 
 

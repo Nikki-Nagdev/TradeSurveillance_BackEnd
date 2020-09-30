@@ -11,6 +11,6 @@ import com.pojo.Trade;
 @Repository
 public interface TradeRepository extends JpaRepository<Trade, Integer>{
 	 
- public List<Trade> findByIsChecked(Boolean a);
+
 
 }
